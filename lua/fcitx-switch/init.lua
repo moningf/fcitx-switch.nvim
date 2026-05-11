@@ -1,7 +1,7 @@
 local M = {}
 
 function M.to_english()
-  vim.system("fcitx5-remote", "-c")
+  vim.system({ "fcitx5-remote", "-c" })
 end
 
 -- 初始化函数
