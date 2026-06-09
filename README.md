@@ -1,10 +1,10 @@
 # fcitx-switch.nvim
 
-自动管理 fcitx5 输入法状态的 Neovim 插件。离开插入模式时切回英文，进入时恢复之前的输入法，支持多种策略灵活控制。
+自动管理输入法状态的 Neovim 插件。离开插入模式时切回英文，进入时按策略恢复。支持 fcitx5、ibus 等框架，通过配置 `obtain_command` / `switch_command` 适配。
 
 ## 依赖
 
-- [fcitx5](https://github.com/fcitx/fcitx5) 输入法框架
+- 支持命令行的输入法框架（fcitx5 / ibus 等）
 - Neovim >= 0.10
 - **comment 策略** 需要对应语言的 [Tree-sitter parser](https://github.com/nvim-treesitter/nvim-treesitter#quickstart)
 
@@ -16,23 +16,51 @@
 {
   "moningf/fcitx-switch.nvim",
   dependencies = { "nvim-treesitter/nvim-treesitter" },
-  config = function()
-    require("fcitx-switch").setup({
-      -- 默认配置
-      default_im = "keyboard-us",
-      preferred_im = "rime",
-      obtain_command = "/usr/bin/fcitx5-remote -n",
-      -- 使用{im}做占位符
-      switch_command = "/usr/bin/fcitx5-remote -s {im}",
-      strategies = {
-        markdown = "preferred_im",
-        comment = "preferred_im",
-        default = "auto",
-      },
-    })
-  end,
+  opts = {},
 }
 ```
+
+不传 `opts` 则使用默认配置。需要自定义时：
+
+```lua
+{
+  "moningf/fcitx-switch.nvim",
+  dependencies = { "nvim-treesitter/nvim-treesitter" },
+  opts = {
+    default_im = "keyboard-us",
+    preferred_im = "rime",
+    strategies = {
+      default = "last_im",
+    },
+  },
+}
+```
+
+## 其他输入法
+
+虽然名称叫 fcitx-switch，但只要配置 `obtain_command` 和 `switch_command` 即可支持任意输入法框架。
+
+### ibus
+
+```lua
+opts = {
+  obtain_command = "ibus engine",
+  switch_command = "ibus engine {im}",
+  default_im = "xkb:us::eng",
+  preferred_im = "rime",
+}
+```
+
+### fcitx5（默认）
+
+```lua
+opts = {
+  obtain_command = "/usr/bin/fcitx5-remote -n",
+  switch_command = "/usr/bin/fcitx5-remote -s {im}",
+}
+```
+
+`{im}` 会被替换为实际的输入法名称。
 
 ## 默认行为
 
